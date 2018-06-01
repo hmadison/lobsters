@@ -39,7 +39,12 @@ gem "oauth"
 # for parsing incoming mail
 gem "mail"
 
+# for activitypub
+gem 'jbuilder'
+gem 'doorkeeper'
+
 group :test, :development do
+  gem 'byebug'
   gem 'bullet'
   gem 'capybara'
   gem "listen"
