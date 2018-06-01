@@ -1,5 +1,4 @@
 Doorkeeper.configure do
-  api_only
   orm :active_record
 
   resource_owner_authenticator do
