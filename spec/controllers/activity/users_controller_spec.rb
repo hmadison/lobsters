@@ -9,12 +9,20 @@ RSpec.describe Activity::UsersController, type: :controller do
   end
 
   let!(:user) { User.make!(username: 'sample_user') }
+  let!(:api_token) do
+    Doorkeeper::AccessToken.create!(
+      application_id: nil,
+      resource_owner_id: user.id,
+      expires_in: 2.hours,
+      scopes: 'public'
+    )
+  end
+
+  let(:user_id) { user_url(user, domain: Rails.application.domain) }
+  let(:user_inbox) { inbox_activity_user_url(user, domain: Rails.application.domain) }
+  let(:user_outbox) { outbox_activity_user_url(user, domain: Rails.application.domain) }
 
   context '#show' do
-    let(:user_id) { user_url(user, domain: Rails.application.domain) }
-    let(:user_inbox) { inbox_activity_user_url(user, domain: Rails.application.domain) }
-    let(:user_outbox) { outbox_activity_user_url(user, domain: Rails.application.domain) }
-
     it 'generates a profile object for a user' do
       get :show, params: {id: user.username}
 
@@ -26,6 +34,27 @@ RSpec.describe Activity::UsersController, type: :controller do
 
       expect(response.body).to define_ld_property('inbox', user_inbox)
       expect(response.body).to define_ld_property('outbox', user_outbox)
+    end
+  end
+
+  context '#inbox' do
+    # Set up the data to make a fake stream
+    let!(:story) { Story.make!(user_id: user.id) }
+    let!(:comment) { Comment.make!(story_id: story.id) }
+    let!(:message) { Message.make!(recipient_user_id: user.id) }
+
+    before do
+      ReadRibbon.create(story_id: comment.story.id, user_id: user.id, updated_at: 1.year.ago)
+    end
+
+    it 'generates an inbox stream for a user' do
+      get :inbox, params: {id: user.username}
+
+      expect(response.content_type).to eq('application/ld+json')
+
+      expect(response.body).to define_ld_property('type', 'OrderedCollection')
+      expect(response.body).to define_ld_property('id', user_inbox)
+      expect(response.body).to define_ld_property('toatlItems', 3)
     end
   end
 end
