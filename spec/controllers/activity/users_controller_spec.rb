@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe Activity::UsersController, type: :controller do
   render_views
 
-  let!(:user) { User.make!(username: 'sample_user') }
-  let!(:api_token) { Doorkeeper::AccessToken.make!(resource_owner_id: user.id) }
+  let!(:user) { create(:user, username: 'sample_user') }
+  let!(:api_token) { create(:doorkeeper_access_token, resource_owner_id: user.id) }
 
   # All interactions with this controller should be ld+json
   before :each do
@@ -33,9 +33,9 @@ RSpec.describe Activity::UsersController, type: :controller do
 
   context '#inbox' do
     # Set up the data to make a fake stream
-    let!(:story) { Story.make!(user_id: user.id) }
-    let!(:comment) { Comment.make!(story_id: story.id) }
-    let!(:message) { Message.make!(recipient_user_id: user.id) }
+    let!(:story) { create(:story, user_id: user.id) }
+    let!(:comment) { create(:comment, story_id: story.id) }
+    let!(:message) { create(:message, recipient_user_id: user.id) }
 
     before do
       ReadRibbon.create(story_id: comment.story.id, user_id: user.id, updated_at: 1.year.ago)
@@ -55,8 +55,8 @@ RSpec.describe Activity::UsersController, type: :controller do
 
   context '#outbox' do
     # Set up the data to make a fake stream
-    let!(:story) { Story.make!(user_id: user.id) }
-    let!(:comment) { Comment.make!(story_id: story.id) }
+    let!(:story) { create(:story, user_id: user.id) }
+    let!(:comment) { create(:comment, story_id: story.id) }
 
     it 'generates an inbox stream for a user' do
       get :outbox, params: {id: user.username}

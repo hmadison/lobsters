@@ -1,7 +1,16 @@
 Rails.application.routes.draw do
+  use_doorkeeper
+
   root :to => "home#index",
     :protocol => (Rails.application.config.force_ssl ? "https://" : "http://"),
     :as => "root"
+
+  namespace :activity do
+    resources :users, only: [:show] do
+      match 'inbox', on: :member, via: %i(get post)
+      match 'outbox', on: :member, via: %i(get post)
+    end
+  end
 
   get "/404" => "home#four_oh_four", :via => :all
 
