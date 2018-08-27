@@ -1,0 +1,29 @@
+{
+  "name": "Lobste.rs",
+  "description": "Software behind the Lobste.rs community",
+  "keywords": ["community"],
+  "addons": [
+    {"plan": "jawsdb:kitefin", "as": "DATABASE"},
+    "mailgun:starter",
+    "scheduler:standard"
+  ],
+  "env": {
+    "RAILS_ENV": "production",
+    "CONFIG_MODE": "heroku",
+    "SITE_NAME": {
+      "description": "The name of your instance.",
+      "value": "My Link Website"
+    },
+    "SITE_DOMAIN": {
+      "description": "The domain name pointed to your instance.",
+      "value": "example.com"
+    },
+    "SECRET_KEY_BASE": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret"
+    }
+  },
+  "scripts": {
+    "postdeploy": "bundle exec rake db:migrate && bundle exec rake db:seed"
+  },
+}
