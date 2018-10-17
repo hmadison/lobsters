@@ -11,6 +11,7 @@ gem "mysql2"
 gem 'scenic'
 gem 'scenic-mysql_adapter'
 gem "activerecord-typedstore"
+gem 'jbuilder'
 
 # js
 gem "dynamic_form"

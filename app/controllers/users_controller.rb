@@ -14,6 +14,7 @@ class UsersController < ApplicationController
     respond_to do |format|
       format.html { render :action => "show" }
       format.json { render :json => @showing_user }
+      format.ld_json { render }
     end
   end
 

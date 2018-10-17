@@ -194,4 +194,9 @@ Rails.application.routes.draw do
   get "/privacy" => "home#privacy"
   get "/about" => "home#about"
   get "/chat" => "home#chat"
+
+  resources :activity, only: [] do
+    get 'inbox', on: :member
+    get 'outbox', on: :member
+  end
 end
