@@ -16,7 +16,7 @@ class AddDomainToStories < ActiveRecord::Migration[5.2]
       }.each { |d| Domain.create!(domain: d, is_tracker: true) }
 
     Story.find_in_batches do |s|
-      match = u.match(URL_RE)
+      match = s.url.match(url_re)
       next unless match
 
       name = match ? match[:domain].sub(/^www\d*\./, '') : nil
