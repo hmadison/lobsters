@@ -5,7 +5,6 @@ class HomeController < ApplicationController
 
   # for rss feeds, load the user's tag filters if a token is passed
   before_action :find_user_from_rss_token, :only => [:index, :newest, :saved]
-  before_action { @page = page }
   before_action :require_logged_in_user, :only => [:upvoted]
 
   def four_oh_four
@@ -309,25 +308,15 @@ private
     StoryRepository.new(@user, exclude_tags: filtered_tag_ids)
   end
 
-  def page
-    p = params[:page].to_i
-    if p == 0
-      p = 1
-    elsif p < 0 || p > (2 ** 32)
-      raise ActionController::RoutingError.new("page out of bounds")
-    end
-    p
-  end
-
   def paginate(scope)
-    StoriesPaginator.new(scope, page, @user).get
+    StoriesPaginator.new(scope, params[:after], @user).get
   end
 
   def get_from_cache(opts = {}, &block)
     if Rails.env.development? || @user || tags_filtered_by_cookie.any?
       yield
     else
-      key = opts.merge(page: page).sort.map {|k, v| "#{k}=#{v.to_param}" }.join(" ")
+      key = opts.merge(after: params[:after]).sort.map {|k, v| "#{k}=#{v.to_param}" }.join(" ")
       begin
         Rails.cache.fetch("stories #{key}", :expires_in => 45, &block)
       rescue Errno::ENOENT => e

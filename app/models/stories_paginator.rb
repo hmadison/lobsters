@@ -3,16 +3,24 @@ class StoriesPaginator
 
   STORIES_PER_PAGE = 25
 
-  def initialize(scope, page = 1, user = nil)
+  def initialize(scope, after = nil, user = nil)
     @scope = scope
-    @page = page
+    @after = after
     @user = user
     @per_page = STORIES_PER_PAGE
   end
 
   def get
-    with_pagination_info @scope.limit(per_page + 1)
-      .offset((@page - 1) * per_page)
+    after_id = if @after
+                 Story.find_by(short_id: @after)
+               else
+                 Story.first
+               end
+
+    with_pagination_info @scope
+      .limit(STORIES_PER_PAGE)
+      .where('id > ?', after_id)
+      .order(id: :desc)
       .includes(:user, :suggested_titles, :suggested_taggings, :taggings => :tag)
   end
 
